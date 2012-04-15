@@ -1,31 +1,33 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <math.h>
 
 typedef struct PACKED
 {
-char name[20];      //定义一个char类型的数组名name有20个元素
-unsigned int user; //定义一个无符号的int类型的user
-unsigned int nice; //定义一个无符号的int类型的nice
-unsigned int system;//定义一个无符号的int类型的system
-unsigned int idle; //定义一个无符号的int类型的idle
+	char name[20];      //定义一个char类型的数组名name有20个元素
+	unsigned int user; //定义一个无符号的int类型的user
+	unsigned int nice; //定义一个无符号的int类型的nice
+	unsigned int system;//定义一个无符号的int类型的system
+	unsigned int idle; //定义一个无符号的int类型的idle
 }CPU_OCCUPY;
 
 typedef struct PACKED1       //定义一个mem occupy的结构体
 {
-char name[20];      //定义一个char类型的数组名name有20个元素
-unsigned long total; 
-char name2[20];
-unsigned long free;                       
+	char name[20];      //定义一个char类型的数组名name有20个元素
+	unsigned int total; 
+	char name2[20];
+	unsigned int free;                       
 }MEM_OCCUPY;
 
 typedef struct PACKED2
 {
-char name[40];
-char state;
-char pid[10];
-char size[20]; 
-char uid[20];
+	char name[40];
+	char state;
+	int pid;
+	int uid;
+	int Tgid[64]; 
+	int Tcount;
 }ProcInfo;
 
 ProcInfo pinfo[1000];
@@ -60,9 +62,9 @@ int cal_cpuoccupy (CPU_OCCUPY *o, CPU_OCCUPY *n)
     id = (unsigned long) (n->user - o->user);    //用户第一次和第二次的时间之差
     sd = (unsigned long) (n->system - o->system);//系统第一次和第二次的时间之差
     if((nd-od) != 0)
-    cpu_use = (int)((sd+id)*100)/(nd-od); //((用户+系统)乖100)除(第一次和第二次的时间差)
+    	cpu_use = (int)((sd+id)*100)/(nd-od); //((用户+系统)乖100)除(第一次和第二次的时间差)
     else cpu_use = 0;
-    printf("cpu: %u%\n",cpu_use);
+    printf("cpu: %d% \n",cpu_use);
     return cpu_use;
 }
 
@@ -82,17 +84,42 @@ get_cpuoccupy (CPU_OCCUPY *cpust) //对无类型get函数含有一个形参结�
     fclose(fd);     
 }
 
+int findname(char name[],int id)
+{
+	int i = 0;
+	for(i = 0; i < count; i++)
+	{
+		if(strstr(pinfo[i].name,name) != NULL)
+		{
+			pinfo[i].Tgid[pinfo[i].Tcount] = id;
+			pinfo[i].Tcount ++;
+			return 1;
+		}
+	}
+	return 0;
+}
+
 void getprocinfo(int m) //获得进程的名字和id
 {
+
 	FILE * fd;
 	char tmp1[100];
 	char tmp2[100];
 	char buff[256];
 	char addr[256] = "/proc/";
+	int digit = 0;
+	int n = m;
+	int id = m;
+	while(n > 0)
+	{
+		n = n / 10;
+		digit++;
+	}
 	while(m > 0)
 	{
-		addr[strlen(addr)] =  m % 10 + '0';
+		addr[strlen(addr) + digit - 1] =  m % 10 + '0';
 		m = m / 10;
+		digit--;
 	}
 	strcat(addr,"/status");
 	fd = fopen(addr,"r");
@@ -103,15 +130,52 @@ void getprocinfo(int m) //获得进程的名字和id
 		sscanf (buff, "%s %s", tmp1,tmp2);
 		//printf("%s,%s",tmp1,tmp2);
 		if(tmp1 == strstr(tmp1,"Name"))
-			strncpy(pinfo[count].name,tmp2,20);
+		{
+			if(!findname(tmp2,id))
+			{
+				strncpy(pinfo[count].name,tmp2,20);
+			}
+			else
+			{
+				count--;
+				continue;
+			}
+		}
 		else if(tmp1 == strstr(tmp1,"Pid"))
-			strncpy(pinfo[count].pid,tmp2,10);
+		{
+			pinfo[count].pid = atoi(tmp2);
+			continue;
+		}
 		else if(tmp1 == strstr(tmp1,"State")) 
+		{
 			pinfo[count].state = tmp2[0];
+			continue;
+		}
 		else if(tmp1 == strstr(tmp1,"Uid")) 
-			strncpy(pinfo[count].uid,tmp2,20);
+		{
+			pinfo[count].uid = atoi(tmp2);
+			continue;
+		}	
 	}
+	fclose(fd);
 	count++;
+}
+
+void proc_track(int pid)
+{
+	int i = 0, j = 0;
+	for(i = 0; i < count; i++)
+	{
+		if(pinfo[i].pid == pid)
+			break;
+	}
+	if(i == count)
+		printf("Can't find pid : %d \n",pid);
+	else
+	{
+		for(j = 0; j < pinfo[i].Tcount; j++)
+			printf("\nChild proc of %d is %d ",pid,pinfo[i].Tgid[j]);
+	}
 }
 
 output()
@@ -119,8 +183,11 @@ output()
 	int i =0;
 	for(i = 0; i < count; i++)
 	{
-		if(strcmp(pinfo[i].uid,"0") != 0)
-			printf("%s %s %c %s\n",pinfo[i].name, pinfo[i].pid, pinfo[i].state, pinfo[i].uid);
+		if(pinfo[i].uid != 0)
+		{
+			printf("%s %d %c %d\n",pinfo[i].name, pinfo[i].pid, pinfo[i].state, pinfo[i].uid);
+		//	printf("dsfas\n");
+		}
 	}
 }
 
@@ -132,9 +199,9 @@ int main()
     int cpu;
     //获取内存
     get_memoccupy ((MEM_OCCUPY *)&mem_stat);
-    printf("%s  %d \n",mem_stat.name, mem_stat.total);
-    printf("%s  %d \n",mem_stat.name2,mem_stat.free);
-    printf("Memory : %d% \n",(mem_stat.total - mem_stat.free ) * 100 / mem_stat.total);
+    printf("%s  %u \n",mem_stat.name, mem_stat.total);
+    printf("%s  %u \n",mem_stat.name2,mem_stat.free);
+    printf("Memory : %u% \n",(mem_stat.total - mem_stat.free ) * 100 / mem_stat.total);
     //第一次获取cpu使用情况
     get_cpuoccupy((CPU_OCCUPY *)&cpu_stat1);
     sleep(10);
@@ -145,8 +212,12 @@ int main()
     //计算cpu使用率
     cpu = cal_cpuoccupy ((CPU_OCCUPY *)&cpu_stat1, (CPU_OCCUPY *)&cpu_stat2);
 	int i = 0;
-	for(i = 0; i < 4000; i++)
+	for(i = 0; i < 1000; i++)
+		pinfo[i].Tcount = 0;
+	for(i = 1; i < 4000; i++)
 		getprocinfo(i);
     output();
+    
+    proc_track(1477);
     return 0;
 } 
