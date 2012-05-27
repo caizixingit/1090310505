@@ -3,6 +3,8 @@
 #include <sys/stat.h>
 #include <math.h>
 
+
+
 typedef struct PACKED
 {
 	char name[20];      //定义一个char类型的数组名name有20个元素
@@ -28,12 +30,13 @@ typedef struct PACKED2
 	int uid;
 	int Tgid[64]; 
 	int Tcount;
+	int mem;
 }ProcInfo;
 
 ProcInfo pinfo[1000];
 int count = 0;
 
-get_memoccupy (MEM_OCCUPY * mem) //对无类型get函数含有一个形参结构体类弄的指针O
+void get_memoccupy (MEM_OCCUPY * mem) //对无类型get函数含有一个形参结构体类弄的指针O
 {
     FILE *fd;          
     int n;             
@@ -64,14 +67,13 @@ int cal_cpuoccupy (CPU_OCCUPY *o, CPU_OCCUPY *n)
     if((nd-od) != 0)
     	cpu_use = (int)((sd+id)*100)/(nd-od); //((用户+系统)乖100)除(第一次和第二次的时间差)
     else cpu_use = 0;
-    printf("cpu: %d% \n",cpu_use);
+    printf("cpu: %d%% \n",cpu_use);
     return cpu_use;
 }
 
-get_cpuoccupy (CPU_OCCUPY *cpust) //对无类型get函数含有一个形参结构体类弄的指针O
+void get_cpuoccupy (CPU_OCCUPY *cpust) //对无类型get函数含有一个形参结构体类弄的指针O
 {   
-    FILE *fd;         
-    int n;            
+    FILE *fd;                    
     char buff[256]; 
     CPU_OCCUPY *cpu_occupy;
     cpu_occupy=cpust;
@@ -156,6 +158,10 @@ void getprocinfo(int m) //获得进程的名字和id
 			pinfo[count].uid = atoi(tmp2);
 			continue;
 		}	
+		else if(tmp1 == strstr(tmp1,"VmRSS"))
+		{
+			pinfo[count].mem = atoi(tmp2) / 4;
+		}
 	}
 	fclose(fd);
 	count++;
@@ -178,19 +184,19 @@ void proc_track(int pid)
 	}
 }
 
-output()
+void output()
 {
 	int i =0;
 	for(i = 0; i < count; i++)
 	{
 		if(pinfo[i].uid != 0)
 		{
-			printf("%s %d %c %d\n",pinfo[i].name, pinfo[i].pid, pinfo[i].state, pinfo[i].uid);
+			printf("%s %d %c %d\n",pinfo[i].name, pinfo[i].pid, pinfo[i].state, pinfo[i].mem);
 		//	printf("dsfas\n");
 		}
 	}
 }
-
+/*
 int main()
 {
     CPU_OCCUPY cpu_stat1;
@@ -201,7 +207,7 @@ int main()
     get_memoccupy ((MEM_OCCUPY *)&mem_stat);
     printf("%s  %u \n",mem_stat.name, mem_stat.total);
     printf("%s  %u \n",mem_stat.name2,mem_stat.free);
-    printf("Memory : %u% \n",(mem_stat.total - mem_stat.free ) * 100 / mem_stat.total);
+    printf("Memory : %u%% \n",(mem_stat.total - mem_stat.free ) * 100 / mem_stat.total);
     //第一次获取cpu使用情况
     get_cpuoccupy((CPU_OCCUPY *)&cpu_stat1);
     sleep(10);
@@ -216,8 +222,11 @@ int main()
 		pinfo[i].Tcount = 0;
 	for(i = 1; i < 4000; i++)
 		getprocinfo(i);
-    output();
+   output();
     
-    proc_track(1477);
+    char m[] = "gnomine";
+  // kill_all(SIGTERM, m, NULL);
+  //  kill(2466,SIGKILL);
     return 0;
-} 
+} */
+
