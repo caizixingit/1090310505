@@ -38,6 +38,7 @@ public:
         int mem;
 };
 
+<<<<<<< HEAD
 class NetDev
 {
 public:
@@ -49,6 +50,8 @@ public:
     int trmt_wlan0;
 };
 
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
 class Proc
 {
@@ -56,13 +59,17 @@ public:
     Proc();
     CPU_OCCUPY cpu_stat[2];
     int cpu_ptr;
+<<<<<<< HEAD
     NetDev netdev[2];
     int nd_ptr;
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     MEM_OCCUPY mem_stat;
     int count;
     ProcInfo pinfo[10000];
     int cpu;
 
+<<<<<<< HEAD
     char burden1[10];
     char burden5[10];
     char burden15[10];
@@ -70,6 +77,8 @@ public:
     int netdev_rcv;
     int netdev_trmt;
 
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     void get_memoccupy (MEM_OCCUPY * mem);
     int cal_cpuoccupy (CPU_OCCUPY *o, CPU_OCCUPY *n);
     void get_cpuoccupy (CPU_OCCUPY *cpust);
@@ -77,9 +86,12 @@ public:
     void getprocinfo(int m);
     void proc_track(int pid);
     void init();
+<<<<<<< HEAD
     void get_burden();
     void get_netdev();
     void cal_netdev(int * m, int * n);
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
 
 

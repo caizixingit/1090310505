@@ -22,8 +22,11 @@
 #include <sys/wait.h>
 
 #include "proc.h"
+<<<<<<< HEAD
 #include "displaywidget.h"
 #include "netwidget.h"
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
 class Watchwindow : public QDialog
 {
@@ -37,6 +40,7 @@ public:
     QTabWidget * tabwidget;
     QWidget * pwidget;
     QWidget * mwidget;
+<<<<<<< HEAD
 
     QGridLayout * mLayout;
     QVBoxLayout * vLayout;
@@ -46,6 +50,15 @@ public:
     QHBoxLayout * burdenLayout;
 
     QLabel *label_cpu;
+=======
+    QGridLayout * mLayout;
+    QVBoxLayout * vLayout;
+    QPushButton * endbutton;
+    QTableWidget * tableWidget;
+
+   // QTableWidgetItem items[1000][5];
+
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     QLabel *label1;
     QLabel *label2;
     QLabel *label3;
@@ -55,6 +68,7 @@ public:
     QLabel *label32;
     QLabel *label42;
 
+<<<<<<< HEAD
     QLabel *label_net;
     QLabel *label_rcv;
     QLabel *label_rcvp;
@@ -68,6 +82,8 @@ public:
     QLabel * label_burden1;
     QLabel * label_burden2;
 
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
     void Getpinfo_first();
     void Getpinfo();
@@ -76,6 +92,7 @@ public:
     void PaintTable();
     void PaintMem();
     void tablechange();
+<<<<<<< HEAD
     void Getburden();
     QString Getunit(int m);
     QString itoa(int m);
@@ -83,6 +100,10 @@ public:
     displayWidget * dwidget;
     netWidget * nwidget;
 
+=======
+    QString itoa(int m);
+
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 signals:
 
 public slots:

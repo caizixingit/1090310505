@@ -2,15 +2,29 @@
 
 Proc::Proc()
 {
+<<<<<<< HEAD
 }
 
 
+=======
+    cpu = 0;
+    cpu_ptr = 0;
+}
+
+
+ProcInfo pinfo[1000];
+int count = 0;
+
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 void Proc::init()
 {
     cpu = 0;
     cpu_ptr = 0;
     count = 0;
+<<<<<<< HEAD
     nd_ptr = 0;
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 }
 
 void Proc::get_memoccupy (MEM_OCCUPY * mem) //对无类型get函数含有一个形参结构体类弄的指针O
@@ -43,7 +57,11 @@ int Proc::cal_cpuoccupy (CPU_OCCUPY *o, CPU_OCCUPY *n)
     if((nd-od) != 0)
         cpu_use = (int)((sd+id)*100)/(nd-od); //((用户+系统)乖100)除(第一次和第二次的时间差)
     else cpu_use = 0;
+<<<<<<< HEAD
  //   printf("cpu: %d%% \n",cpu_use);
+=======
+    printf("cpu: %d%% \n",cpu_use);
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     return cpu_use;
 }
 
@@ -62,6 +80,7 @@ void Proc::get_cpuoccupy (CPU_OCCUPY *cpust) //对无类型get函数含有一个
     fclose(fd);
 }
 
+<<<<<<< HEAD
 void Proc::get_netdev()
 {
     FILE * fd;
@@ -118,6 +137,8 @@ void Proc::cal_netdev(int * m, int * n)
     *n = trmt1 - trmt0;
 }
 
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 int Proc::findname(char name[],int id)
 {
         int i = 0;
@@ -210,6 +231,7 @@ void Proc::getprocinfo(int m) //获得进程的名字和id
         count++;
 }
 
+<<<<<<< HEAD
 void Proc::get_burden()
 {
     FILE * fd;
@@ -221,6 +243,8 @@ void Proc::get_burden()
     sscanf(buf,"%s %s %s", burden1, burden5, burden15);
 }
 
+=======
+>>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 void Proc::proc_track(int pid)
 {
         int i = 0, j = 0;
