@@ -2,29 +2,109 @@
 
 Proc::Proc()
 {
-<<<<<<< HEAD
 }
 
 
-=======
-    cpu = 0;
-    cpu_ptr = 0;
-}
-
-
-ProcInfo pinfo[1000];
-int count = 0;
-
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 void Proc::init()
 {
     cpu = 0;
     cpu_ptr = 0;
     count = 0;
-<<<<<<< HEAD
     nd_ptr = 0;
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
+    df_count = 0;
+}
+
+void Proc::get_df()
+{
+    FILE * fd;
+    struct mntent * mntents;
+    struct statfs sfs;
+    fd = setmntent("/etc/mtab", "r");
+    if(!fd)
+    {
+        printf("set mount entry error!\n");
+        return;
+    }
+    while(1)
+    {
+        char * fname;//文件系统名
+        char * dir;//文件系统挂载点，文件系统目录
+        if(fd)
+        {
+            mntents = getmntent(fd);
+            if(!mntents)
+            {
+                endmntent(fd);
+                break;
+            }
+        }
+        else continue;
+        fname = mntents->mnt_fsname;
+        dir = mntents->mnt_dir;
+        if(strstr(fname,"none"))
+            continue;
+        df[df_count].device = fname;
+        df[df_count].mounted = dir;
+        if(statfs(dir, &sfs) != 0)//根据文件系统的挂载点，将该文件系统的信息读取到staffs中
+        {
+            printf("statfs error\n");
+            continue;
+        }
+        if(sfs.f_blocks > 0 )
+        {
+            df[df_count].percent = (sfs.f_blocks - sfs.f_bfree) * 100.0 /(double)sfs.f_blocks;
+            df[df_count].size = getsize(sfs.f_blocks, sfs.f_bsize);
+            df[df_count].useless = getsize(sfs.f_bavail, sfs.f_bsize);
+            df[df_count].free = getsize(sfs.f_bfree,sfs.f_bsize);
+            df[df_count].used = getsize(sfs.f_blocks - sfs.f_bfree, sfs.f_bsize);
+            df_count++;
+        }
+    }
+
+}
+
+static const unsigned long long G = 1024*1024*1024ull;
+static const unsigned long long M = 1024*1024;
+static const unsigned long long K = 1024;
+
+QString Proc::getsize(unsigned long m,unsigned long n)
+{
+    QString s;
+    unsigned long long size = m * (unsigned long long) n;
+    char ss[20] = "0 B";
+    int i = 0;
+    double d = 0;
+    while(size > 0)
+    {
+        size = size / K;
+        i++;
+    }
+    size = m * (unsigned long long)n;
+    switch(i)
+    {
+    case 0:
+        break;
+    case 1:
+        sprintf(ss, "%u B", (int)size);
+        break;
+    case 2:
+        d = size / (K * 1.0);
+        sprintf(ss,"%0.2f KiB",d);
+        break;
+    case 3:
+        d = size / (M * 1.0);
+        sprintf(ss,"%0.2f MiB",d);
+        break;
+    case 4:
+        d = size / (G * 1.0);
+        sprintf(ss,"%0.2f GiB",d);
+        break;
+    default:
+        printf("error\n");
+        break;
+    }
+    s = ss;
+    return s;
 }
 
 void Proc::get_memoccupy (MEM_OCCUPY * mem) //对无类型get函数含有一个形参结构体类弄的指针O
@@ -57,11 +137,7 @@ int Proc::cal_cpuoccupy (CPU_OCCUPY *o, CPU_OCCUPY *n)
     if((nd-od) != 0)
         cpu_use = (int)((sd+id)*100)/(nd-od); //((用户+系统)乖100)除(第一次和第二次的时间差)
     else cpu_use = 0;
-<<<<<<< HEAD
  //   printf("cpu: %d%% \n",cpu_use);
-=======
-    printf("cpu: %d%% \n",cpu_use);
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     return cpu_use;
 }
 
@@ -80,7 +156,6 @@ void Proc::get_cpuoccupy (CPU_OCCUPY *cpust) //对无类型get函数含有一个
     fclose(fd);
 }
 
-<<<<<<< HEAD
 void Proc::get_netdev()
 {
     FILE * fd;
@@ -137,8 +212,6 @@ void Proc::cal_netdev(int * m, int * n)
     *n = trmt1 - trmt0;
 }
 
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 int Proc::findname(char name[],int id)
 {
         int i = 0;
@@ -231,7 +304,6 @@ void Proc::getprocinfo(int m) //获得进程的名字和id
         count++;
 }
 
-<<<<<<< HEAD
 void Proc::get_burden()
 {
     FILE * fd;
@@ -243,8 +315,6 @@ void Proc::get_burden()
     sscanf(buf,"%s %s %s", burden1, burden5, burden15);
 }
 
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 void Proc::proc_track(int pid)
 {
         int i = 0, j = 0;

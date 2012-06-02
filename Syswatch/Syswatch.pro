@@ -12,7 +12,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     watchwindow.cpp \
-<<<<<<< HEAD
     proc.cpp \
     displaywidget.cpp \
     netwidget.cpp
@@ -22,12 +21,5 @@ HEADERS  += \
     proc.h \
     displaywidget.h \
     netwidget.h
-=======
-    proc.cpp
-
-HEADERS  += \
-    watchwindow.h \
-    proc.h
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
 FORMS    +=

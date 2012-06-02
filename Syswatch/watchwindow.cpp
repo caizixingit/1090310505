@@ -5,10 +5,10 @@ Watchwindow::Watchwindow(QWidget *parent) :
     QDialog(parent)
 {
     p.init();
+    p.get_df();
     Getminfo();
     Getpinfo_first();
     QTimer * timer = new QTimer(this);
-<<<<<<< HEAD
     timer->start(3000);
     connect(timer, SIGNAL(timeout()), this, SLOT(ontimerout()));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
@@ -21,17 +21,10 @@ Watchwindow::Watchwindow(QWidget *parent) :
     burdenLayout = new QHBoxLayout();
 
     mwidget = new QWidget;
-=======
-    timer->start(5000);
-    connect(timer, SIGNAL(timeout()), this, SLOT(ontimerout()));
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-
-    tabwidget = new QTabWidget;
-    pwidget = new QWidget;
-    mwidget = new QWidget;
-    vLayout = new QVBoxLayout();
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     mLayout = new QGridLayout();
+
+    dfwidget = new QWidget();
+    dfLayout = new QVBoxLayout();
 
     endbutton = new QPushButton(tr("结束进程"));
     connect(endbutton, SIGNAL(clicked()), this, SLOT(endproc()));
@@ -40,40 +33,51 @@ Watchwindow::Watchwindow(QWidget *parent) :
 
     PaintMem();
 
+    PaintDf();
+
 
     tabwidget->addTab(pwidget,tr("进程"));
     tabwidget->addTab(mwidget,tr("资源"));
-    //connect(tabwidget,SIGNAL(currentChanged()),this,SLOT(tabchange()));
+    tabwidget->addTab(dfwidget,tr("文件系统"));
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-<<<<<<< HEAD
     mainLayout->addWidget(tabwidget,1,1,100,100);
-=======
-    mainLayout->addWidget(tabwidget,1,1,100,160);
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     setLayout(mainLayout);
 
 }
 
-void Watchwindow::tabchange()
+void Watchwindow::PaintDf()
 {
-    int m = tabwidget->currentIndex();
-    if(m == 1)
+    QPalette pe;
+    pe.setColor(QPalette::WindowText,Qt::black);
+    label_df = new QLabel(tr("文件系统"));
+    label_df->setPalette(pe);
+
+    dfWidget = new QTableWidget(p.df_count,7);
+    //dfWidget->setWindowTitle("QTableWidget & Item");
+    dfWidget->resize(550, 500); //设置表格
+    dfWidget->setSelectionBehavior(QAbstractItemView::SelectRows); //整行选中的方式
+    dfWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);  //不可更改
+    QStringList header;
+    header<<tr("设备")<<tr("目录")<<tr("总数")<<tr("空闲")<<tr("可用")<<tr("已用")<<tr("已用%");
+    dfWidget->setHorizontalHeaderLabels(header);
+
+    for(int i = 0; i < p.df_count; i++)
     {
-        Getminfo();
-        Getpinfo();
-        PaintTable();
+        dfWidget->setItem(i,0,new QTableWidgetItem(p.df[i].device));
+        dfWidget->setItem(i,1,new QTableWidgetItem(p.df[i].mounted));
+        dfWidget->setItem(i,2,new QTableWidgetItem(p.df[i].size));
+        dfWidget->setItem(i,3,new QTableWidgetItem(p.df[i].free));
+        dfWidget->setItem(i,4,new QTableWidgetItem(p.df[i].useless));
+        dfWidget->setItem(i,5,new QTableWidgetItem(p.df[i].used));
+        dfWidget->setItem(i,6,new QTableWidgetItem(itoa(p.df[i].percent) + "%"));
     }
-    else if(m == 2)
-    {
-        Getminfo();
-        Getcpuinfo();
-        PaintMem();
-    }
+    dfLayout->addWidget(label_df);
+    dfLayout->addWidget(dfWidget);
+    dfwidget->setLayout(dfLayout);
 }
 
-<<<<<<< HEAD
 
 void Watchwindow::PaintMem()
 {
@@ -83,26 +87,14 @@ void Watchwindow::PaintMem()
 
     Getcpuinfo();
     p.get_netdev();
-=======
-void Watchwindow::PaintMem()
-{
-    QTimer * timers = new QTimer(this);
-    timers->start(10000);
-    connect(timers, SIGNAL(timeout()), this, SLOT(cputimerout()));
-
-    Getcpuinfo();
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     int m = (p.mem_stat.total - p.mem_stat.free ) * 100 / p.mem_stat.total;
     QString s = itoa(m) + QLatin1String("%");
     QString s1 = "%";
 
-<<<<<<< HEAD
     label_cpu = new QLabel(tr("CPU历史"));
     QPalette pe;
     pe.setColor(QPalette::WindowText,Qt::black);
     label_cpu->setPalette(pe);
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     label1 = new QLabel(tr("内存总量："));
     label2 = new QLabel(tr("空闲内存："));
     label3 = new QLabel(tr("内存使用率："));
@@ -112,7 +104,6 @@ void Watchwindow::PaintMem()
     label32 = new QLabel(s);
     label42 = new QLabel(s1);
 
-<<<<<<< HEAD
     label_net = new QLabel(tr("网络历史:"));
     label_net->setPalette(pe);
     label_rcv = new QLabel(tr("总计已接收"));
@@ -150,26 +141,13 @@ void Watchwindow::PaintMem()
     mLayout->addWidget(nwidget,20,0,8,6);
 
     mLayout->setRowMinimumHeight(20,150);
-=======
-    mLayout->addWidget(label1,1,1,1,1);
-    mLayout->addWidget(label12,1,3,2,1);
-    mLayout->addWidget(label2,3,1,2,1);
-    mLayout->addWidget(label22,3,3,2,1);
-    mLayout->addWidget(label3,5,1,2,1);
-    mLayout->addWidget(label32,5,3,2,1);
-    mLayout->addWidget(label4,7,1,2,1);
-    mLayout->addWidget(label42,7,3,2,1);
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
     mwidget->setLayout(mLayout);
 }
 
 void Watchwindow::PaintTable()
 {
-<<<<<<< HEAD
     Getburden();
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
     tableWidget = new QTableWidget(p.count,5);
     tableWidget->setWindowTitle("QTableWidget & Item");
@@ -180,12 +158,8 @@ void Watchwindow::PaintTable()
     header<<tr("进程名")<<tr("进程ID")<<tr("状态")<<tr("内存")<<tr("内存%%");
     tableWidget->setHorizontalHeaderLabels(header);
     tablechange();
-<<<<<<< HEAD
     tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);//不可更改
     vLayout->addLayout(burdenLayout);
-=======
-    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);  //不可更改
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     vLayout->addWidget(tableWidget);
     vLayout->addWidget(endbutton);
     pwidget->setLayout(vLayout);
@@ -214,7 +188,6 @@ void Watchwindow::tablechange()
     }
 }
 
-<<<<<<< HEAD
 void Watchwindow::Getburden()
 {
     label_burden1 = new QLabel(tr("前一分钟、五分钟、十五分钟的平均负载："));
@@ -229,8 +202,6 @@ void Watchwindow::Getburden()
     burdenLayout->addWidget(label_burden1);
     burdenLayout->addWidget(label_burden2);
 }
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 
 
 void Watchwindow::ontimerout()
@@ -244,10 +215,7 @@ void Watchwindow::ontimerout()
    // PaintTable();
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 void Watchwindow::cputimerout()
 {
     Getminfo();
@@ -255,19 +223,15 @@ void Watchwindow::cputimerout()
     int m = (p.mem_stat.total - p.mem_stat.free ) * 100 / p.mem_stat.total;
     int ptr = ( p.cpu_ptr + 1 ) % 2;
     int m1 = p.cal_cpuoccupy ((CPU_OCCUPY *)&p.cpu_stat[p.cpu_ptr], (CPU_OCCUPY *)&p.cpu_stat[ptr]);
-<<<<<<< HEAD
     dwidget->cpu_use[dwidget->cpu_use_ptr] = m1;
     dwidget->cpu_use_ptr = (dwidget->cpu_use_ptr + 1) % 120;
     dwidget->cpu_use_count++;
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
     QString s = itoa(m) + "%";
     QString s1 = itoa(m1) + "%";
     label12->setText(itoa(p.mem_stat.total));
     label22->setText(itoa(p.mem_stat.free));
     label32->setText(s);
     label42->setText(s1);
-<<<<<<< HEAD
 
     p.get_netdev();
     int rcvp = 0, trmtp = 0;
@@ -303,17 +267,17 @@ QString Watchwindow::Getunit(int m)
         break;
     case 2:
         d = (m * 2) / 1024;
-        sprintf(ss,"%.2f",d);
+        sprintf(ss,"%0.2f",d);
         s = ss + tr("Kib/s");
         break;
     case 3:
         d = (m * 2) / 1024 / 1024;
-        sprintf(ss,"%.2f",d);
+        sprintf(ss,"%0.2f",d);
         s = ss + tr("Mib/s");
         break;
     case 4:
         d = (m * 2) / 1024 / 1024 / 1024;
-        sprintf(ss,"%.2f",d);
+        sprintf(ss,"%0.2f",d);
         s = ss + tr("Gib/s");
         break;
     default:
@@ -321,8 +285,6 @@ QString Watchwindow::Getunit(int m)
         break;
     }
     return s;
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 }
 
 void Watchwindow::endproc()
@@ -334,10 +296,7 @@ void Watchwindow::endproc()
     tableWidget->removeRow(m);
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 QString Watchwindow::itoa(int m)
 {
     int digit = 0;
@@ -369,15 +328,9 @@ void Watchwindow::Getcpuinfo()
 void Watchwindow::Getminfo()
 {
     p.get_memoccupy ((MEM_OCCUPY *)&p.mem_stat);
-<<<<<<< HEAD
    // printf("%s  %u \n",p.mem_stat.name, p.mem_stat.total);
    // printf("%s  %u \n",p.mem_stat.name2,p.mem_stat.free);
    // printf("Memory : %u%% \n",(p.mem_stat.total - p.mem_stat.free ) * 100 / p.mem_stat.total);
-=======
-    printf("%s  %u \n",p.mem_stat.name, p.mem_stat.total);
-    printf("%s  %u \n",p.mem_stat.name2,p.mem_stat.free);
-    printf("Memory : %u%% \n",(p.mem_stat.total - p.mem_stat.free ) * 100 / p.mem_stat.total);
->>>>>>> 11cb5218703e692e5de4f9df9ca6508a293caff9
 }
 
 void Watchwindow::Getpinfo()
