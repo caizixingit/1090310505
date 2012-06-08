@@ -88,8 +88,8 @@ void netWidget::paintnet(QPainter &painter)
            rcv1 = (net_rcv[( ptr + i ) % 120] * 100) / max;
            x0 = 70 + 4 * (i - 1);
            x1 = 70 + 4 * i;
-           y0 = 125 - rcv0 * 1.2;
-           y1 = 125 - rcv1 * 1.2;
+           y0 = 130 - rcv0 * 1.2;
+           y1 = 130 - rcv1 * 1.2;
            painter.drawLine(QPoint(x0,y0),QPoint(x1,y1));
         }
     }
@@ -155,17 +155,17 @@ QString netWidget::Getunit(int m)
     case 2:
         d = (m * 2) / 1024;
         sprintf(ss,"%.2f",d);
-        s = tr("Kib/s");
+        s = tr("KiB/s");
         break;
     case 3:
         d = (m * 2) / 1024 / 1024;
         sprintf(ss,"%.2f",d);
-        s = tr("Mib/s");
+        s = tr("MiB/s");
         break;
     case 4:
         d = (m * 2) / 1024 / 1024 / 1024;
         sprintf(ss,"%.2f",d);
-        s = tr("Gib/s");
+        s = tr("GiB/s");
         break;
     default:
         printf("error\n");

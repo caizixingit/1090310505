@@ -12,10 +12,52 @@ void Proc::init()
     count = 0;
     nd_ptr = 0;
     df_count = 0;
+    basic.cpu_count = 0;
 }
+
+void Proc::get_basic()
+{
+    FILE * fd;
+    fd = fopen("/proc/cpuinfo","r");
+    char buf[256];
+    char tmp1[100];
+    char tmp2[100];
+    char tmp3[100];
+    char tmp4[100];
+    while(fgets(buf,sizeof(buf),fd) != NULL)
+    {
+        sscanf(buf,"%s %s %s %s", tmp1, tmp2, tmp3, tmp4);
+        if(strstr(tmp1,"model") && strstr(tmp2,"name"))
+        {
+            char * p = strstr(buf,":");
+            basic.cpuinfo[basic.cpu_count] = p + 1;
+        }
+        else if(strstr(tmp1,"cpu") && strstr(tmp2,"MHz"))
+        {
+
+            basic.hz[basic.cpu_count] = tmp4;
+            basic.hz[basic.cpu_count].append("MHZ");
+            basic.cpu_count++;
+        }
+    }
+
+    fd = fopen("/proc/version","r");
+    fgets(buf, sizeof(buf), fd);
+    char * p = strchr(buf,'(');
+    basic.version = buf;
+    basic.version.remove(strlen(buf)- strlen(p), strlen(p));
+
+    fd = fopen("/proc/version_signature","r");
+    fgets(buf, sizeof(buf), fd);
+    sscanf(buf,"%s", tmp1);
+    basic.system = tmp1;
+}
+
+
 
 void Proc::get_df()
 {
+    df_count = 0;
     FILE * fd;
     struct mntent * mntents;
     struct statfs sfs;
@@ -330,4 +372,11 @@ void Proc::proc_track(int pid)
                 for(j = 0; j < pinfo[i].Tcount; j++)
                         printf("\nChild proc of %d is %d ",pid,pinfo[i].Tgid[j]);
         }
+}
+
+void Proc::test(QString s)
+{
+    QMessageBox box;
+    box.setText(s);
+    box.exec();
 }

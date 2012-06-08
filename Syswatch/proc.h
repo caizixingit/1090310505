@@ -2,6 +2,7 @@
 #define PROC_H
 
 #include <QDialog>
+#include <QMessageBox>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -65,6 +66,16 @@ public:
     double percent;
 };
 
+class Basic
+{
+public:
+    QString cpuinfo[4];
+    int cpu_count;
+    QString hz[4];
+    QString version;
+    QString system;
+};
+
 class Proc
 {
 public:
@@ -82,6 +93,8 @@ public:
 
     DF df[20];
     int df_count;
+
+    Basic basic;
 
     char burden1[10];
     char burden5[10];
@@ -102,7 +115,10 @@ public:
     void cal_netdev(int * m, int * n);
 
     void get_df();
+    void get_basic();
     QString getsize(unsigned long m, unsigned long n);
+
+    void test(QString s);
 
 };
 

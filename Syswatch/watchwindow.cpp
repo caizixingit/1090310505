@@ -5,11 +5,12 @@ Watchwindow::Watchwindow(QWidget *parent) :
     QDialog(parent)
 {
     p.init();
+    p.get_basic();
     p.get_df();
     Getminfo();
     Getpinfo_first();
     QTimer * timer = new QTimer(this);
-    timer->start(3000);
+    timer->start(1000);
     connect(timer, SIGNAL(timeout()), this, SLOT(ontimerout()));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 
@@ -26,8 +27,16 @@ Watchwindow::Watchwindow(QWidget *parent) :
     dfwidget = new QWidget();
     dfLayout = new QVBoxLayout();
 
+    bwidget = new QWidget();
+    bLayout = new QVBoxLayout();
+
+    trackbutton = new QPushButton(tr("跟踪进程"));
     endbutton = new QPushButton(tr("结束进程"));
+
     connect(endbutton, SIGNAL(clicked()), this, SLOT(endproc()));
+    connect(trackbutton,SIGNAL(clicked()),this, SLOT(trackproc()));
+
+    PaintBasic();
 
     PaintTable();
 
@@ -35,7 +44,7 @@ Watchwindow::Watchwindow(QWidget *parent) :
 
     PaintDf();
 
-
+    tabwidget->addTab(bwidget,tr("系统"));
     tabwidget->addTab(pwidget,tr("进程"));
     tabwidget->addTab(mwidget,tr("资源"));
     tabwidget->addTab(dfwidget,tr("文件系统"));
@@ -47,8 +56,54 @@ Watchwindow::Watchwindow(QWidget *parent) :
 
 }
 
+
+void Watchwindow::PaintBasic()
+{
+    QPalette pe;
+    pe.setColor(QPalette::WindowText,Qt::black);
+    QGroupBox * system = new QGroupBox(p.basic.system);
+    QVBoxLayout * vblayout = new QVBoxLayout();
+    QLabel * label_version = new QLabel(p.basic.version);
+    QLabel * label_natty = new QLabel(tr("版本11.04（natty）"));
+    QLabel * label_gnome = new QLabel("GNOME 2.32.1");
+    vblayout->addWidget(label_version);
+    vblayout->addWidget(label_natty);
+    vblayout->addWidget(label_gnome);
+
+
+    system->setLayout(vblayout);
+
+    QGroupBox * hardware = new QGroupBox(tr("硬件"));
+
+    QGridLayout * glayout = new QGridLayout();
+
+    for( int i = 0; i < p.basic.cpu_count; i++)
+    {
+        QString s = tr("处理器");
+        s.append(i + '0');
+        QLabel * cpu = new QLabel(s);
+        QString ss = p.basic.cpuinfo[i];
+        //ss.append("(");
+        ss.append(p.basic.hz[i]);
+       // ss.append(")");
+        QLabel * cpuinfo = new QLabel(ss);
+        glayout->addWidget(cpu,i,0);
+        glayout->addWidget(cpuinfo,i,1,1,4);
+    }
+    hardware->setLayout(glayout);
+
+    bLayout->addWidget(system);
+    bLayout->addWidget(hardware);
+    bLayout->addWidget(new QWidget());
+    bwidget->setLayout(bLayout);
+}
+
 void Watchwindow::PaintDf()
 {
+    QTimer * timer = new QTimer(this);
+    timer->start(3000);
+    connect(timer, SIGNAL(timeout()), this, SLOT(dftimerout()));
+
     QPalette pe;
     pe.setColor(QPalette::WindowText,Qt::black);
     label_df = new QLabel(tr("文件系统"));
@@ -63,6 +118,15 @@ void Watchwindow::PaintDf()
     header<<tr("设备")<<tr("目录")<<tr("总数")<<tr("空闲")<<tr("可用")<<tr("已用")<<tr("已用%");
     dfWidget->setHorizontalHeaderLabels(header);
 
+    Dftablechange();
+
+    dfLayout->addWidget(label_df);
+    dfLayout->addWidget(dfWidget);
+    dfwidget->setLayout(dfLayout);
+}
+
+void Watchwindow::Dftablechange()
+{
     for(int i = 0; i < p.df_count; i++)
     {
         dfWidget->setItem(i,0,new QTableWidgetItem(p.df[i].device));
@@ -73,11 +137,13 @@ void Watchwindow::PaintDf()
         dfWidget->setItem(i,5,new QTableWidgetItem(p.df[i].used));
         dfWidget->setItem(i,6,new QTableWidgetItem(itoa(p.df[i].percent) + "%"));
     }
-    dfLayout->addWidget(label_df);
-    dfLayout->addWidget(dfWidget);
-    dfwidget->setLayout(dfLayout);
 }
 
+void Watchwindow::dftimerout()
+{
+    p.get_df();
+    Dftablechange();
+}
 
 void Watchwindow::PaintMem()
 {
@@ -161,7 +227,14 @@ void Watchwindow::PaintTable()
     tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);//不可更改
     vLayout->addLayout(burdenLayout);
     vLayout->addWidget(tableWidget);
-    vLayout->addWidget(endbutton);
+    QWidget *w = new QWidget();
+    QHBoxLayout * hl = new QHBoxLayout();
+    hl->addWidget(new QWidget());
+    hl->addWidget(trackbutton);
+    hl->addWidget(endbutton);
+    w->setLayout(hl);
+    vLayout->addWidget(w);
+
     pwidget->setLayout(vLayout);
 
 }
@@ -268,17 +341,17 @@ QString Watchwindow::Getunit(int m)
     case 2:
         d = (m * 2) / 1024;
         sprintf(ss,"%0.2f",d);
-        s = ss + tr("Kib/s");
+        s = ss + tr("KiB/s");
         break;
     case 3:
         d = (m * 2) / 1024 / 1024;
         sprintf(ss,"%0.2f",d);
-        s = ss + tr("Mib/s");
+        s = ss + tr("MiB/s");
         break;
     case 4:
         d = (m * 2) / 1024 / 1024 / 1024;
         sprintf(ss,"%0.2f",d);
-        s = ss + tr("Gib/s");
+        s = ss + tr("GiB/s");
         break;
     default:
         printf("error\n");
@@ -296,6 +369,10 @@ void Watchwindow::endproc()
     tableWidget->removeRow(m);
 }
 
+void Watchwindow::trackproc()
+{
+
+}
 
 QString Watchwindow::itoa(int m)
 {

@@ -35,14 +35,18 @@ public:
     int itemcount;
 
     QTabWidget * tabwidget;
+    QWidget * bwidget;
     QWidget * pwidget;
     QWidget * mwidget;
     QWidget * dfwidget;
 
     QGridLayout * mLayout;
+    QVBoxLayout * bLayout;
     QVBoxLayout * vLayout;
 
     QPushButton * endbutton;
+    QPushButton * trackbutton;
+
     QTableWidget * tableWidget;
     QHBoxLayout * burdenLayout;
 
@@ -81,8 +85,10 @@ public:
     void PaintTable();
     void PaintMem();
     void PaintDf();
+    void PaintBasic();
     void tablechange();
     void Getburden();
+    void Dftablechange();
     QString Getunit(int m);
     QString itoa(int m);
 
@@ -92,9 +98,11 @@ public:
 signals:
 
 public slots:
+    void trackproc();
     void endproc();
     void ontimerout();
     void cputimerout();
+    void dftimerout();
 };
 
 #endif // WATCHWINDOW_H
