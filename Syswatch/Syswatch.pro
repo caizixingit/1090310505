@@ -14,12 +14,14 @@ SOURCES += main.cpp \
     watchwindow.cpp \
     proc.cpp \
     displaywidget.cpp \
-    netwidget.cpp
+    netwidget.cpp \
+    ptrace_widget.cpp
 
 HEADERS  += \
     watchwindow.h \
     proc.h \
     displaywidget.h \
-    netwidget.h
+    netwidget.h \
+    ptrace_widget.h
 
 FORMS    +=

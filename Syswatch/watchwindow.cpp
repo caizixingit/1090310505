@@ -16,6 +16,8 @@ Watchwindow::Watchwindow(QWidget *parent) :
 
     dwidget = new displayWidget();
     nwidget = new netWidget();
+    twidget = new Ptrace_widget();
+
     tabwidget = new QTabWidget;
     pwidget = new QWidget;
     vLayout = new QVBoxLayout();
@@ -30,7 +32,6 @@ Watchwindow::Watchwindow(QWidget *parent) :
     bwidget = new QWidget();
     bLayout = new QVBoxLayout();
 
-    trackbutton = new QPushButton(tr("跟踪进程"));
     endbutton = new QPushButton(tr("结束进程"));
 
     connect(endbutton, SIGNAL(clicked()), this, SLOT(endproc()));
@@ -48,6 +49,7 @@ Watchwindow::Watchwindow(QWidget *parent) :
     tabwidget->addTab(pwidget,tr("进程"));
     tabwidget->addTab(mwidget,tr("资源"));
     tabwidget->addTab(dfwidget,tr("文件系统"));
+    tabwidget->addTab(twidget,tr("跟踪"));
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -230,7 +232,7 @@ void Watchwindow::PaintTable()
     QWidget *w = new QWidget();
     QHBoxLayout * hl = new QHBoxLayout();
     hl->addWidget(new QWidget());
-    hl->addWidget(trackbutton);
+    hl->addWidget(new QWidget());
     hl->addWidget(endbutton);
     w->setLayout(hl);
     vLayout->addWidget(w);

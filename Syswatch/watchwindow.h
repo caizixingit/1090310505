@@ -24,6 +24,7 @@
 #include "proc.h"
 #include "displaywidget.h"
 #include "netwidget.h"
+#include "ptrace_widget.h"
 
 class Watchwindow : public QDialog
 {
@@ -45,7 +46,6 @@ public:
     QVBoxLayout * vLayout;
 
     QPushButton * endbutton;
-    QPushButton * trackbutton;
 
     QTableWidget * tableWidget;
     QHBoxLayout * burdenLayout;
@@ -94,6 +94,8 @@ public:
 
     displayWidget * dwidget;
     netWidget * nwidget;
+    Ptrace_widget * twidget;
+
 
 signals:
 
