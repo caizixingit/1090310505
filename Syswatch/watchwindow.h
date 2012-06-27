@@ -100,11 +100,11 @@ public:
 signals:
 
 public slots:
-    void trackproc();
     void endproc();
     void ontimerout();
     void cputimerout();
     void dftimerout();
+    void tracep(int x, int y);
 };
 
 #endif // WATCHWINDOW_H

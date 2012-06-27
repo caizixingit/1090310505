@@ -35,7 +35,6 @@ Watchwindow::Watchwindow(QWidget *parent) :
     endbutton = new QPushButton(tr("结束进程"));
 
     connect(endbutton, SIGNAL(clicked()), this, SLOT(endproc()));
-    connect(trackbutton,SIGNAL(clicked()),this, SLOT(trackproc()));
 
     PaintBasic();
 
@@ -221,6 +220,7 @@ void Watchwindow::PaintTable()
     tableWidget->setWindowTitle("QTableWidget & Item");
     tableWidget->resize(550, 500); //设置表格
     tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows); //整行选中的方式
+    tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     //tableWidget->setEditTriggers(QAbstractItemView::CurrentChanged);  //不可更改
     QStringList header;
     header<<tr("进程名")<<tr("进程ID")<<tr("状态")<<tr("内存")<<tr("内存%%");
@@ -238,7 +238,45 @@ void Watchwindow::PaintTable()
     vLayout->addWidget(w);
 
     pwidget->setLayout(vLayout);
+    connect(tableWidget,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(tracep(int ,int)));
+}
 
+void Watchwindow::tracep(int x,int y)
+{
+    int m = x;
+    int n= p.pinfo[m].pid;
+    QString s = tr("子进程id： ");;
+    for(int i = n; i < n + 1000; i++ )
+    {
+        char addr[100] = "/proc/";
+        QString qs = itoa(n);
+        QByteArray qbyte = qs.toLatin1();
+        char * ch = qbyte.data();
+        strcat(addr, ch);
+        strcat(addr,"/task/");
+        FILE * fd;
+
+        QString qss = itoa(i);
+        QByteArray qbytes = qss.toLatin1();
+        char * c = qbytes.data();
+        strcat(addr, c);
+        //strcat(addr,"/status");
+
+        fd = fopen(addr,"r");
+        if(fd <= 0)
+            continue;
+        else
+        {
+            printf("%s\n",addr);
+            s.append(itoa(i));
+            s.append(", ");
+        }
+        fclose(fd);
+    }
+    s.remove(s.length() - 2 , 2);
+    QMessageBox box;
+    box.setText(s);
+    box.exec();
 }
 
 void Watchwindow::tablechange()
@@ -371,10 +409,7 @@ void Watchwindow::endproc()
     tableWidget->removeRow(m);
 }
 
-void Watchwindow::trackproc()
-{
 
-}
 
 QString Watchwindow::itoa(int m)
 {
